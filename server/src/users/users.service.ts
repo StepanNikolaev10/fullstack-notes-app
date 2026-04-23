@@ -1,26 +1,34 @@
-import { Injectable } from '@nestjs/common';
-import type { UserCreateArgs } from './types/services/users-service-args.interfaces';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './user.entity';
-import { Repository } from 'typeorm';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
+  constructor(private readonly prismaService: PrismaService) {}
 
-  constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>
-  ) {}
+  async createOne(email: string, username: string, hashedPassword: string) {
+    const createdUser = await this.prismaService.user.create({
+      data: {
+        email,
+        username,
+        hashedPassword,
+      },
+    });
 
-  async createUser(dto: UserCreateArgs): Promise<UserEntity> {
-    const user = this.userRepository.create(dto);
-    await this.userRepository.save(user)
-    return user;
+    return createdUser;
   }
 
-  async getUserByEmail(email: string): Promise<UserEntity| null> {
-    const user = await this.userRepository.findOne({where: { email }});
+  async getOne(id?: string, email?: string) {
+    if (!id && !email) {
+      throw new BadRequestException();
+    }
+
+    const user = await this.prismaService.user.findFirst({
+      where: {
+        id,
+        email,
+      },
+    });
+
     return user;
   }
-
 }

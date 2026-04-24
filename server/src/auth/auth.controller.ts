@@ -8,57 +8,61 @@ import { GetRefreshTokenPayload } from './decorators/get-rt-payload.decorator';
 import { UserRegistrationDto } from './dto/req/user-registration.dto';
 import { UserLoginDto } from './dto/req/user-login.dto';
 import { plainToInstance } from 'class-transformer';
-import type { Tokens } from './types/tokens.interface';
+import type { TRefreshTokenPayload } from './types/jwt-payloads';
 
 @Controller('auth')
 export class AuthController {
-
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
-  
+
   @Post('/registration')
   async registration(
     @Body() dto: UserRegistrationDto,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResDto> {
     const jwts = await this.authService.registration(dto);
-    res.cookie('refreshToken', jwts.refreshToken, { 
+
+    res.cookie('refreshToken', jwts.refreshToken, {
       httpOnly: true,
       maxAge: this.configService.get<number>('JWT_REFRESH_EXPIRES_IN')! * 1000, // знак ! стоит потому что приложение не запустится без env, стоит Joi schema
     });
+
     return plainToInstance(AuthResDto, { accessToken: jwts.accessToken });
   }
 
   @Post('/login')
   async login(
     @Body() dto: UserLoginDto,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResDto> {
     const jwts = await this.authService.login(dto);
-    res.cookie('refreshToken', jwts.refreshToken, { 
+
+    res.cookie('refreshToken', jwts.refreshToken, {
       httpOnly: true,
-      maxAge: this.configService.get<number>('JWT_REFRESH_EXPIRES_IN')! * 1000, // знак ! стоит потому что приложение не запустится без env, стоит Joi schema
+      maxAge: this.configService.get<number>('JWT_REFRESH_EXPIRES_IN')! * 1000,
     });
+
     return plainToInstance(AuthResDto, { accessToken: jwts.accessToken });
   }
 
   @Post('/refresh')
   @UseGuards(JwtRefreshAuthGuard)
   async refresh(
-    @GetRefreshTokenPayload() currentRefreshTokenPayload: Tokens['refreshTokenPayload'],
-    @Res({ passthrough: true }) res: Response
+    @GetRefreshTokenPayload() currentRefreshTokenPayload: TRefreshTokenPayload,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResDto> {
     const jwts = await this.authService.refresh({ currentRefreshTokenPayload });
-    if(jwts.refreshToken) {
-      res.cookie('refreshToken', jwts.refreshToken, { 
+
+    if (jwts.refreshToken) {
+      res.cookie('refreshToken', jwts.refreshToken, {
         httpOnly: true,
-        maxAge: this.configService.get<number>('JWT_REFRESH_EXPIRES_IN')! * 1000, // знак ! стоит потому что приложение не запустится без env, стоит Joi schema
+        maxAge:
+          this.configService.get<number>('JWT_REFRESH_EXPIRES_IN')! * 1000,
       });
     }
+
     return plainToInstance(AuthResDto, { accessToken: jwts.accessToken });
   }
-
 }
-

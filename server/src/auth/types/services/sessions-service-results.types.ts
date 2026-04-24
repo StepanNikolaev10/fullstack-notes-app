@@ -1,1 +1,0 @@
-export type UpdateSessionResult = 'NOT_FOUND' | 'ALREADY_UPDATED' | 'OK';

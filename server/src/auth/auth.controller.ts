@@ -5,10 +5,10 @@ import { AuthResDto } from './dto/res/auth-res.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { GetRefreshTokenPayload } from './decorators/get-rt-payload.decorator';
-import { UserRegistrationDto } from './dto/req/user-registration.dto';
-import { UserLoginDto } from './dto/req/user-login.dto';
 import { plainToInstance } from 'class-transformer';
 import type { TRefreshTokenPayload } from './types/jwt-payloads';
+import { RegisterDto } from './dto/req/register.dto';
+import { LoginDto } from './dto/req/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,7 +19,7 @@ export class AuthController {
 
   @Post('/registration')
   async registration(
-    @Body() dto: UserRegistrationDto,
+    @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResDto> {
     const jwts = await this.authService.registration(dto);
@@ -34,7 +34,7 @@ export class AuthController {
 
   @Post('/login')
   async login(
-    @Body() dto: UserLoginDto,
+    @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResDto> {
     const jwts = await this.authService.login(dto);

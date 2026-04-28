@@ -26,7 +26,7 @@ export class AuthController {
 
     res.cookie('refreshToken', jwts.refreshJwt, {
       httpOnly: true,
-      maxAge: this.configService.get<number>('REFRESH_JWT_EXPIRES_IN')! * 1000, // знак ! стоит потому что приложение не запустится без env, стоит Joi schema
+      maxAge: this.configService.get<number>('REFRESH_JWT_EXPIRES')! * 1000, // знак ! стоит потому что приложение не запустится без env, стоит Joi schema
     });
 
     return plainToInstance(AuthResDto, { accessToken: jwts.accessJwt });
@@ -41,7 +41,7 @@ export class AuthController {
 
     res.cookie('refreshToken', jwts.refreshJwt, {
       httpOnly: true,
-      maxAge: this.configService.get<number>('REFRESH_JWT_EXPIRES_IN')! * 1000,
+      maxAge: this.configService.get<number>('REFRESH_JWT_EXPIRES')! * 1000,
     });
 
     return plainToInstance(AuthResDto, { accessToken: jwts.accessJwt });
@@ -59,7 +59,7 @@ export class AuthController {
       res.cookie('refreshJwt', jwts.refreshJwt, {
         httpOnly: true,
         maxAge:
-          this.configService.get<number>('REFRESH_JWT_EXPIRES_IN')! * 1000,
+          this.configService.get<number>('REFRESH_JWT_EXPIRES')! * 1000,
       });
     }
 

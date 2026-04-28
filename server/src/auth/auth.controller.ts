@@ -1,11 +1,9 @@
 import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
-import { AuthResDto } from './dto/res/auth-res.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { GetRefreshTokenPayload } from './decorators/get-rt-payload.decorator';
-import { plainToInstance } from 'class-transformer';
 import { RegisterDto } from './dto/req/register.dto';
 import { LoginDto } from './dto/req/login.dto';
 import type { TJwtPayload } from './types/jwt-payload';

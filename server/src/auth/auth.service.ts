@@ -15,10 +15,13 @@ export class AuthService {
   constructor(private readonly usersService: UsersService) {}
 
   async register(dto: RegisterDto) {
-    const candidate = await this.usersService.getOneByEmail(dto.email);
-    if (candidate) {
+    const isUserExists = await this.usersService.getOne({
+      email: dto.email,
+      username: dto.username,
+    });
+    if (isUserExists) {
       throw new HttpException(
-        'User with this email already exists',
+        'User with this email or username already exists',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -29,7 +32,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.usersService.getOneByEmail(dto.email);
+    const user = await this.usersService.getOne({ email: dto.email });
     if (!user) {
       throw new UnauthorizedException({
         message: 'User with this email is not exists',
@@ -48,7 +51,9 @@ export class AuthService {
   }
 
   async refresh(refreshJwtPayload: TJwtPayload) {
-    const user = await this.usersService.getOneById(refreshJwtPayload.userId);
+    const user = await this.usersService.getOne({
+      id: refreshJwtPayload.userId,
+    });
     if (!user) {
       throw new UnauthorizedException(
         'This account no longer exists. Please log in with a different account.',

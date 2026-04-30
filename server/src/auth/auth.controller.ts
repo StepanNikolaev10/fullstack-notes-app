@@ -7,7 +7,7 @@ import { GetRefreshTokenPayload } from './decorators/get-rt-payload.decorator';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import type { TJwtPayload } from './types/jwt-payload';
-import { TokensService } from './tokens.service';
+import { TokensService } from './tokens/tokens.service';
 
 @Controller('auth')
 export class AuthController {

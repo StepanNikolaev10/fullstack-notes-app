@@ -35,6 +35,11 @@ export class AuthController {
     return this.giveJwts({ userId: userData.id }, res);
   }
 
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.cookie('refreshJwt', '');
+  }
+
   @Post('/refresh')
   @UseGuards(JwtRefreshAuthGuard)
   async refresh(

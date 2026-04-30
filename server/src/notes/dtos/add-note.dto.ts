@@ -7,5 +7,5 @@ export class AddNoteDto {
 
   @IsString()
   @MaxLength(10000)
-  readonly mainText: string;
+  readonly text: string;
 }

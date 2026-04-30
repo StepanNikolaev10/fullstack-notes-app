@@ -10,5 +10,5 @@ export class UpdateNoteContentDto {
 
   @IsString()
   @MaxLength(10000)
-  readonly updatedMainText: string;
+  readonly updatedText: string;
 }

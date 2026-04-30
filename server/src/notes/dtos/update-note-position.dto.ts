@@ -1,6 +1,6 @@
 import { IsInt, IsString } from 'class-validator';
 
-export class UpdateNotePosisionDto {
+export class UpdateNotePositionDto {
   @IsString()
   readonly noteId: string;
 

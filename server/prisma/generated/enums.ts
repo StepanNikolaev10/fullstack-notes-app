@@ -28,9 +28,9 @@ export type colorKey = (typeof colorKey)[keyof typeof colorKey]
 
 
 export const status = {
-  DEFAULT: 'DEFAULT',
-  ARCHIVED: 'ARCHIVED',
-  TRASHED: 'TRASHED'
+  default: 'default',
+  archived: 'archived',
+  trashed: 'trashed'
 } as const
 
 export type status = (typeof status)[keyof typeof status]

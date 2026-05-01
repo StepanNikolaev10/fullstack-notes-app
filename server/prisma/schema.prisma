@@ -32,7 +32,7 @@ model Note {
   title          String?
   text           String?
   colorKey       colorKey @default(FIRST) @map("color_key")
-  status         status   @default(DEFAULT)
+  status         status   @default(default)
   positionNumber Int      @map("position_number")
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -60,7 +60,7 @@ enum colorKey {
 }
 
 enum status {
-  DEFAULT
-  ARCHIVED
-  TRASHED
+  default
+  archived
+  trashed
 }

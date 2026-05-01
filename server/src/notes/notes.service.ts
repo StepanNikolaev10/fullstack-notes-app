@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import type { Note, status, User } from '../../prisma/generated/client';
+import type { Note, Prisma, status, User } from '../../prisma/generated/client';
 import { AddNoteDto } from './dtos/add-note.dto';
 import { ArchiveNotesDto } from './dtos/archive-notes.dto';
 import { UnarchiveNotesDto } from './dtos/unarchive-notes.dto';
@@ -24,7 +24,7 @@ export class NotesService {
   addNote(dto: AddNoteDto, authorId: User['id']) {
     return this.prismaService.$transaction(async (prisma) => {
       const lastDefaultNote = await prisma.note.findFirst({
-        where: { status: 'DEFAULT', authorId: authorId },
+        where: { status: 'default', authorId: authorId },
         orderBy: { positionNumber: 'desc' },
       });
 
@@ -49,8 +49,8 @@ export class NotesService {
   archiveNotes(dto: ArchiveNotesDto, authorId: User['id']) {
     return this.changeNoteStatus({
       noteIds: dto.noteIds,
-      currentStatus: 'DEFAULT',
-      selectedStatus: 'ARCHIVED',
+      currentStatus: 'default',
+      selectedStatus: 'archived',
       authorId: authorId,
     });
   }
@@ -59,8 +59,8 @@ export class NotesService {
   unarchiveNotes(dto: UnarchiveNotesDto, authorId: User['id']) {
     return this.changeNoteStatus({
       noteIds: dto.noteIds,
-      currentStatus: 'ARCHIVED',
-      selectedStatus: 'DEFAULT',
+      currentStatus: 'archived',
+      selectedStatus: 'default',
       authorId: authorId,
     });
   }
@@ -70,7 +70,7 @@ export class NotesService {
     return this.changeNoteStatus({
       noteIds: dto.noteIds,
       currentStatus: dto.currentStatus,
-      selectedStatus: 'TRASHED',
+      selectedStatus: 'trashed',
       authorId: authorId,
     });
   }
@@ -79,8 +79,8 @@ export class NotesService {
   restoreTrashedNotes(dto: RestoreTrashedNotesDto, authorId: User['id']) {
     return this.changeNoteStatus({
       noteIds: dto.noteIds,
-      currentStatus: 'TRASHED',
-      selectedStatus: 'DEFAULT',
+      currentStatus: 'trashed',
+      selectedStatus: 'default',
       authorId: authorId,
     });
   }
@@ -91,7 +91,7 @@ export class NotesService {
       const notesToDelete = await prisma.note.findMany({
         where: {
           id: { in: dto.noteIds },
-          status: 'TRASHED',
+          status: 'trashed',
           authorId: authorId,
         },
         orderBy: { positionNumber: 'desc' },
@@ -111,7 +111,7 @@ export class NotesService {
       for (const pos of oldPositions) {
         await prisma.note.updateMany({
           where: {
-            status: 'TRASHED',
+            status: 'trashed',
             authorId: authorId,
             positionNumber: { gt: pos },
           },
@@ -129,7 +129,7 @@ export class NotesService {
       where: {
         id: { in: dto.noteIds },
         authorId: authorId,
-        status: { in: ['DEFAULT', 'ARCHIVED'] },
+        status: { in: ['default', 'archived'] },
       },
       data: { colorKey: dto.updatedColorKey },
     });
@@ -138,7 +138,7 @@ export class NotesService {
       where: {
         id: { in: dto.noteIds },
         authorId: authorId,
-        status: { in: ['DEFAULT', 'ARCHIVED'] },
+        status: { in: ['default', 'archived'] },
       },
       select: { id: true, updatedAt: true },
     });
@@ -157,7 +157,7 @@ export class NotesService {
       where: {
         id: dto.noteId,
         authorId: authorId,
-        status: { in: ['DEFAULT', 'ARCHIVED'] },
+        status: { in: ['default', 'archived'] },
       },
       data: { title: dto.updatedTitle, text: dto.updatedText },
     });

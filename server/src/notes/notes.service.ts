@@ -15,6 +15,7 @@ import { DeleteNotesDto } from './dtos/delete-notes.dto';
 import { UpdateNotesColorDto } from './dtos/update-notes-color.dto';
 import { UpdateNoteContentDto } from './dtos/update-note-content.dto';
 import { UpdateNotePositionDto } from './dtos/update-note-position.dto';
+import { GetNotesDto, SORT_METHODS } from './dtos/get-notes.dto';
 
 @Injectable()
 export class NotesService {
@@ -236,6 +237,71 @@ export class NotesService {
       });
     });
   }
+
+  // Получить заметки
+  async getNotes(query: GetNotesDto, authorId: User['id']) {
+    const { status, sort, search, limit, last_id } = query;
+
+    // Формируем условия фильтрации (WHERE)
+    const where: Prisma.NoteWhereInput = {
+      authorId: authorId,
+      status: status,
+    };
+
+    // Если есть поиск, ищем по заголовку или контенту
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { text: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Формируем сортировку (ORDER BY)
+    let orderBy: Prisma.NoteOrderByWithRelationInput = {};
+
+    switch (sort) {
+      case SORT_METHODS.CREATED_AT:
+        orderBy = { createdAt: 'desc' }; // сначала новые
+        break;
+      case SORT_METHODS.UPDATED_AT:
+        orderBy = { updatedAt: 'desc' }; // сначала недавно обновленные
+        break;
+      case SORT_METHODS.CUSTOM:
+        // Для custom сортировки у вас должно быть отдельное поле в БД,
+        // например orderIndex, которое вы обновляете при drag-n-drop
+        orderBy = { positionNumber: 'asc' };
+        break;
+    }
+
+    // Формируем аргументы запроса с учетом курсорной пагинации
+    const args: Prisma.NoteFindManyArgs = {
+      where,
+      orderBy,
+      take: limit,
+    };
+
+    // Если передан last_id, начинаем искать после него
+    if (last_id) {
+      args.cursor = { id: last_id };
+      args.skip = 1; // Пропускаем саму запись с last_id, чтобы она не вернулась снова
+    }
+
+    // Выполняем запрос
+    const notes = await this.prismaService.note.findMany(args);
+
+    // Возвращаем результат и следующий last_id для фронтенда
+    return {
+      data: notes,
+      meta: {
+        // Если вернулось столько же элементов, сколько мы просили,
+        // значит скорее всего есть еще данные
+        next_last_id:
+          notes.length === limit ? notes[notes.length - 1].id : null,
+      },
+    };
+  }
+
+  // PRIVATE METHODS
 
   // Сменить статус заметки
   private changeNoteStatus(args: {

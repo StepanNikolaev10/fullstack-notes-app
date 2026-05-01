@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AddNoteDto } from './dtos/add-note.dto';
 import { NotesService } from './notes.service';
 import { ArchiveNotesDto } from './dtos/archive-notes.dto';
@@ -12,6 +20,7 @@ import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { GetAccessTokenPayload } from '../auth/decorators/get-at-payload.decorator';
 import type { TJwtPayload } from '../auth/types/jwt-payload';
 import { UpdateNotePositionDto } from './dtos/update-note-position.dto';
+import { GetNotesDto } from './dtos/get-notes.dto';
 
 @Controller('notes')
 export class NotesController {
@@ -96,5 +105,14 @@ export class NotesController {
     @GetAccessTokenPayload() accessJwtPayload: TJwtPayload,
   ) {
     return this.notesService.updateNotePosition(dto, accessJwtPayload.userId);
+  }
+
+  @Get('/')
+  @UseGuards(JwtAccessAuthGuard)
+  getNotes(
+    @Query() query: GetNotesDto,
+    @GetAccessTokenPayload() accessJwtPayload: TJwtPayload,
+  ) {
+    return this.notesService.getNotes(query, accessJwtPayload.userId);
   }
 }

@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@my-notes/types": "*",
     "dompurify": "^3.3.0",
     "html-react-parser": "^5.2.10",
     "react": "^19.2.0",
